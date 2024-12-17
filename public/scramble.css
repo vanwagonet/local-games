@@ -1,0 +1,45 @@
+:root {
+    color-scheme:light dark; font-family:system-ui; height:100%; margin:0;
+    --die-bg: #fee
+}
+@media (prefers-color-scheme:dark) {
+    :root {
+        --die-bg: #333
+    }
+}
+
+body { margin:0; height:100% }
+main { max-width:30rem; min-height:75%; padding:1px; text-align:center; margin:auto }
+input { box-sizing:border-box; font-size:x-large; max-width:17rem; width:75% }
+button[type=submit] { font-size:x-large }
+pre { font-size:x-large }
+.fill { align-items:center; display:flex; flex-direction:column; max-height:100vh; position:relative; height:24lh }
+.board { flex:1; margin-bottom:1em }
+.entry-path { fill:none; opacity:0; stroke:accentcolor; stroke-linecap:round; stroke-linejoin:round; stroke-width:0.6 }
+.entry-path:target { opacity:0.7 }
+[href="#die-bg"] { fill:var(--die-bg) }
+[href="#die-f"] { fill:url(#die-g) }
+text { dominant-baseline:central; text-anchor:middle; fill:currentcolor; font-size:4% }
+ul { list-style-type:none; text-align:left }
+.simple li { display:inline }
+.simple li + li::before { content:", " }
+
+.entry-path { animation:4s linear infinite path; stroke-dasharray:3 1 }
+@keyframes path { from { stroke-dashoffset:0 } to { stroke-dashoffset:-4 } }
+
+.fill::after {
+    animation:4s forwards board; content:" "; font-size:4rem; pointer-events:none;
+    align-items:center; display:flex; justify-content:center;
+    position:absolute; top:0; right:0; bottom:-10px; left:0
+}
+@keyframes board {
+ 0%, 15% { content:"3"; font-size:4em;  color:canvastext; background:canvas }
+24.9999% { content:"3"; font-size:40em; color:transparent }
+25%, 40% { content:"2"; font-size:4em;  color:canvastext }
+49.9999% { content:"2"; font-size:40em; color:transparent }
+50%, 65% { content:"1"; font-size:4em;  color:canvastext }
+74.9999% { content:"1"; font-size:40em; color:transparent }
+75% { background:canvas; content:"Go!"; font-size:4rem; color:canvastext }
+85% { background:none; content:"Go!"; font-size:40rem; color:transparent }
+100% { content:" "; font-size:40rem; color:transparent }
+}
