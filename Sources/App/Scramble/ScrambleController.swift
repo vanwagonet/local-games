@@ -1,5 +1,4 @@
 import Hummingbird
-import HummingbirdElementary
 
 struct ScrambleController {
     typealias Context = AppRequestContext
@@ -28,9 +27,10 @@ struct ScrambleController {
 
         let players = await context.app.sessions[for: game.players]
         let state = await game.state(for: session.id)
-        let headers: HTTPFields = [ .cacheControl: "no-store" ]
-        return try HTMLResponse(additionalHeaders: headers) { ScramblePage(players: players, state: state) }
-            .response(from: request, context: context)
+        let headers: HTTPFields = [ .cacheControl: "no-store", .contentType: "text/html; charset=utf-8" ]
+        return Response(status: .ok, headers: headers, body: .markup {
+            ScramblePage(players: players, state: state)
+        })
     }
 
     @Sendable func addEntry(request: Request, context: Context) async throws -> Response {

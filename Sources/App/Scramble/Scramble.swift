@@ -166,6 +166,6 @@ extension Scramble.Entry {
     }
 
     var value: Int {
-        2 << (word.count - 4)
+        1 << (word.count - 3)
     }
 }

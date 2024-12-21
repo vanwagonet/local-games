@@ -24,13 +24,13 @@ struct AppTests {
                 headers: [ .contentType: MediaType.applicationUrlEncoded.description ],
                 body: ByteBuffer(string: "name=Bob")
             )
-            #expect(response.headers[.location] == "/")
+            #expect(response.headers[.location] == "/lobby")
 
             let setCookie = try #require(response.headers[.setCookie])
-            let cookie = try String(#require(/(session=[a-z0-9]+); HttpOnly/.wholeMatch(in: setCookie)?.output.1))
+            let cookie = try String(#require(/(session=[a-z0-9]+); HttpOnly/.firstMatch(in: setCookie)?.output.1))
 
-            response = try await client.execute(uri: "/", method: .get, headers: [ .cookie: cookie ])
-            #expect(response.body == ByteBuffer(string: LobbyPage(name: "Bob", players: [ "Bob" ]).render()))
+            response = try await client.execute(uri: "/lobby", method: .get, headers: [ .cookie: cookie ])
+            #expect(response.body == LobbyPage(name: "Bob", players: [ "Bob" ]).render())
         }
     }
 }

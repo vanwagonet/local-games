@@ -1,5 +1,4 @@
 import Hummingbird
-import HummingbirdElementary
 
 struct HomeController {
     typealias Context = AppRequestContext
@@ -20,8 +19,10 @@ struct HomeController {
 
         let name = request.uri.queryParameters["name"].map { String($0) } ?? request.cookies["name"]?.value
         let returnTo = request.uri.queryParameters["returnTo"].map { String($0) }
-        return try HTMLResponse { SigninPage(name: name, returnTo: returnTo) }
-            .response(from: request, context: context)
+        let headers: HTTPFields = [ .contentType: "text/html; charset=utf-8" ]
+        return Response(status: .ok, headers: headers, body: .markup {
+            SigninPage(name: name, returnTo: returnTo)
+        })
     }
 
     @Sendable func signin(request: Request, context: Context) async throws -> Response {
@@ -77,8 +78,13 @@ struct HomeController {
 
                 await context.app.lobby.add(session)
                 let players = await context.app.lobby.players
-                let headers: HTTPFields = [ .cacheControl: "no-store", .vary: "accept" ]
-                return HTMLResponse(additionalHeaders: headers) { LobbyPage(name: session.name, players: players) }
+                let headers: HTTPFields = [
+                    .cacheControl: "no-store", .vary: "accept",
+                    .contentType: "text/html; charset=utf-8",
+                ]
+                return Response(status: .ok, headers: headers, body: .markup {
+                    LobbyPage(name: session.name, players: players)
+                })
 
             default:
                 return nil

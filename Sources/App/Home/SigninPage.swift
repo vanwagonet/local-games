@@ -1,39 +1,50 @@
-import Elementary
+import HTML
 
-struct SigninPage: HTMLDocument {
+struct SigninPage: Markup {
     var name: String?
     var returnTo: String?
 
-    let title = "Local Games"
-    let lang = "en"
-
-    var head: some HTML {
-        meta(.charset(.utf8))
-        meta(.name(.viewport), .content("width=device-width, initial-scale=1.0"))
-        link(.href("/icon.svg"), .rel(.icon))
-        link(.href("/style.css"), .rel(.stylesheet))
+    var markup: some Markup {
+        HTML(.lang("en")) {
+            Head { head }
+            Body { body }
+        }
     }
 
-    var body: some HTML {
-        main {
-            h1 { "Local Games" }
-            p { "Play together, with a server on your local network." }
-            form(.method(.post), .action("/")) {
-                if let returnTo { input(.type(.hidden), .name("returnTo"), .value(returnTo)) }
-                fieldset {
-                    legend { "Sign In" }
-                    label {
+    @MarkupBuilder var head: some MetadataContent {
+        Meta(.charset(.utf8))
+        Title { "Local Games" }
+        Meta(.name("viewport"), .content("width=device-width, initial-scale=1.0"))
+        Link(href: "/icon.svg", .rel(.icon))
+        Link(href: "/style.css", .rel(.stylesheet))
+    }
+
+    @MarkupBuilder var body: some HTMLContent {
+        Main {
+            H1 { "Local Games" }
+            P { "Play together, with a server on your local network." }
+            Form(.method(.post), .action("/")) {
+                if let returnTo {
+                    Input(
+                        .init("type", value: Text(verbatim: "hidden")),
+                        .init("name", value: Text(verbatim: "returnTo")),
+                        .init("value", value: Text(verbatim: returnTo))
+                    )
+                }
+                FieldSet {
+                    Legend { "Sign In" }
+                    Label {
                         "Player Name"
-                        input(
-                            .type(.text),
-                            .name("name"),
-                            .placeholder("Please enter your name"),
-                            .pattern(".*\\S.*"),
-                            .required,
-                            .value(name ?? "")
+                        Input(
+                            .init("type", value: Text(verbatim: "text")),
+                            .init("name", value: Text(verbatim: "name")),
+                            .init("placeholder", value: Text("Please enter your name")),
+                            .init("pattern", value: Text(verbatim: ".*\\S.*")),
+                            .init("required"),
+                            .init("value", value: Text(verbatim: name ?? ""))
                         )
                     }
-                    button(.type(.submit)) {
+                    Button(.type(.submit)) {
                         "Play"
                     }
                 }

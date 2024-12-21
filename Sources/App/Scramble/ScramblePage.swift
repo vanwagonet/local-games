@@ -1,6 +1,7 @@
-import Elementary
+import HTML
+import SVG
 
-struct ScramblePage: HTMLDocument {
+struct ScramblePage: Markup {
     let players: [Session.ID: Session]
     let state: Scramble.State
 
@@ -9,54 +10,62 @@ struct ScramblePage: HTMLDocument {
         self.state = state
     }
 
-    let title = "Scramble - Local Games"
-    let lang = "en"
-
-    var head: some HTML {
-        meta(.charset(.utf8))
-        meta(.name(.viewport), .content("width=device-width, initial-scale=1.0"))
-        link(.href("/icon.svg"), .rel(.icon))
-        if state.remaining > .zero {
-            meta(.httpEquiv("refresh"), .content(String(state.remaining.seconds + 1)))
+    var markup: some Markup {
+        HTML(.lang("en")) {
+            Head { head }
+            Body { body }
         }
-        link(.href("\(Scramble.path).css"), .rel(.stylesheet))
-        style(".fill::after { animation-delay:\((state.remaining - .minutes(3) - .seconds(3)).seconds)s }")
     }
 
-    var body: some HTML {
-        main {
-            h1 { "Scramble" }
+    @MarkupBuilder var head: some MetadataContent {
+        Meta(.charset(.utf8))
+        Meta(.name("viewport"), .content("width=device-width, initial-scale=1.0"))
+        Title { "Scramble - Local Games" }
+        Link(href: "/icon.svg", .rel(.icon))
+        if state.remaining > .zero {
+            Meta(.httpEquiv("refresh"), .content(String(state.remaining.seconds + 1)))
+        }
+        Link(href: "\(Scramble.path).css", .rel(.stylesheet))
+        Style {
+            let delay = (state.remaining - .minutes(3) - .seconds(3)).seconds
+            Text(verbatim: ".fill::after { animation-delay:\(delay)s }")
+        }
+    }
+
+    @MarkupBuilder var body: some HTMLContent {
+        Main {
+            H1 { "Scramble" }
             if state.remaining > .zero {
                 CountDown(remaining: state.remaining)
             } else {
-                h2 { "Your total: \(state.entries.map(\.score).reduce(0, +))p" }
-                p { a(.href("/lobby")) { "Return to lobby" } }
+                H2 { "Your total: \(state.entries.map(\.score).reduce(0, +))p" }
+                P { A(.href("/lobby")) { "Return to lobby" } }
             }
-            section(.class("fill")) {
-                svg(
+            Section(.class("fill")) {
+                SVG(
                     .class("board"),
                     .viewBox(minX: -0.5, minY: -0.5, width: state.board.count, height: state.board.count)
                 ) {
-                    defs {
-                        linearGradient(.id("die-g"), .gradientTransform("rotate(90)")) {
-                            stop(.offset("0%"), .stopColor("rgba(255,255,255,0.2)"))
-                            stop(.offset("50%"), .stopColor("transparent"))
-                            stop(.offset("100%"), .stopColor("rgba(0,0,0,0.2)"))
+                    Defs {
+                        LinearGradient(.id("die-g"), .gradientTransform(.rotate("90"))) {
+                            Stop(.offset("0%"), .stopColor("rgba(255,255,255,0.2)"))
+                            Stop(.offset("50%"), .stopColor("transparent"))
+                            Stop(.offset("100%"), .stopColor("rgba(0,0,0,0.2)"))
                         }
                         let diebg = "M-.38-.48h.76q.1 0 .1.1v.76q0 .1-.1.1h-.76q-.1 0-.1-.1v-.76q0-.1.1-.1z"
-                        path(.id("die-bg"), .d(diebg))
-                        path(.id("die-f"), .d("\(diebg)m.38 .04a.44.44 0 0 0 0 .88a.44.44 0 0 0 0-.88"))
+                        Path(.id("die-bg"), .d(diebg))
+                        Path(.id("die-f"), .d("\(diebg)m.38 .04a.44.44 0 0 0 0 .88a.44.44 0 0 0 0-.88"))
                     }
                     for y in state.board.indices {
                         for x in state.board[y].indices {
-                            use(.href("#die-bg"), .x(x), .y(y))
-                            use(.href("#die-f"), .x(x), .y(y))
+                            Use(.href("#die-bg"), .x(x), .y(y))
+                            Use(.href("#die-f"), .x(x), .y(y))
                         }
                     }
                     if state.remaining == .zero {
-                        ForEach(state.entries) { entry in
+                        for entry in state.entries {
                             for (i, line) in entry.paths.enumerated() {
-                                path(
+                                Path(
                                     .id("\(entry.word)-\(i+1)"), .class("entry-path"),
                                     .d("M\(line.map { "\($0.x) \($0.y)" } .joined(separator: " "))")
                                 )
@@ -65,67 +74,68 @@ struct ScramblePage: HTMLDocument {
                     }
                     for y in state.board.indices {
                         for x in state.board[y].indices {
-                            text(.x(x), .y(y)) { HTMLText(String(state.board[y][x])) }
+                            TextElement(.x(x), .y(y)) { state.board[y][x] }
                         }
                     }
                 }
                 if state.remaining > .zero {
-                    form(.method(.post), .action("\(Scramble.path(state.gameID))/entries")) {
-                        input(.autofocus, .autocapitalize("none"), .name("word"), .placeholder("word"))
-                        button(.type(.submit)) { "add" }
+                    Form(.method(.post), .action("\(Scramble.path(state.gameID))/entries")) {
+                        Input(.autoFocus, .autoCapitalize(.none), .init("name", value: Text(verbatim: "word")), .init("placeholder", value: Text("word")))
+                        Button(.type(.submit)) { "add" }
                     }
                 }
             }
-            ul(.id("words")) {
-                ForEach(state.entries) { entry in
-                    li {
+            UL(.id("words"), .if(state.remaining > .zero, .class("simple"))) {
+                for entry in state.entries {
+                    LI {
                         if state.remaining > .zero {
-                            HTMLText(entry.word)
+                            entry.word
                         } else {
                             ScrambleEntryListItem(entry: entry, players: players)
                         }
                     }
                 }
             }
-            .attributes(.class("simple"), when: state.remaining > .zero)
         }
-        script("""
-        const input = document.querySelector("[name=word]")
-        input.focus()
-        const parser = new DOMParser()
-        document.querySelector("form")?.addEventListener("submit", async (event) => {
-            event.preventDefault()
-            const form = event.target, data = new FormData(form)
-            input.value = ""
+        Script {
+            InlineScriptContent("""
+            const input = document.querySelector("[name=word]")
             input.focus()
-            try {
-                let response = await fetch(form.action, { method: form.method, body: new URLSearchParams(data) })
-                let html = await response.text()
-                let doc = parser.parseFromString(html, response.headers.get("content-type").split(";")[0])
-                document.querySelector("#words").replaceWith(doc.querySelector("#words"))
-            } catch (error) {
-            }
-        })
-        """)
+            const parser = new DOMParser()
+            document.querySelector("form")?.addEventListener("submit", async (event) => {
+                event.preventDefault()
+                const form = event.target, data = new FormData(form)
+                input.value = ""
+                input.focus()
+                try {
+                    let response = await fetch(form.action, { method: form.method, body: new URLSearchParams(data) })
+                    let html = await response.text()
+                    let doc = parser.parseFromString(html, response.headers.get("content-type").split(";")[0])
+                    document.querySelector("#words").replaceWith(doc.querySelector("#words"))
+                } catch (error) {
+                }
+            })
+            """)
+        }
     }
 }
 
-struct ScrambleEntryListItem: HTML {
+struct ScrambleEntryListItem: HTMLContent {
     let entry: Scramble.Entry
     let players: [Session.ID: Session]
 
-    var content: some HTML {
+    var markup: some HTMLContent {
         if entry.isValid {
             "\(entry.word) \(entry.value)p"
         } else {
-            s { "\(entry.word) \(entry.value)p" }
+            S { "\(entry.word) \(entry.value)p" }
         }
         if entry.paths.isEmpty {
             " Not found."
         }
         for i in entry.paths.indices {
-            HTMLRaw(" ")
-            a(.href("#\(entry.word)-\(i+1)")) { "\(i+1)" }
+            Text(verbatim: " ")
+            A(.href("#\(entry.word)-\(i+1)")) { "\(i+1)" }
         }
         if !entry.inDict {
             " Not in dictionary."
