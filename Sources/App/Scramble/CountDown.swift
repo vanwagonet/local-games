@@ -4,19 +4,17 @@ struct CountDown: HTMLContent {
     let remaining: Duration
 
     var markup: some HTMLContent {
-        Style {
-            Text(verbatim: """
+        Style("""
             \(keyframes("m1", period: 600, scale: 60))
             \(keyframes("s10", period: 60, scale: 10))
             \(keyframes("s1", period: 10, scale: 1))
             @keyframes hide { from, to { visibility:hidden } }
             
             .countdown-digit { position:relative; animation:1s forwards hide }
-            .countdown-digit span { display:inline-block; position:absolute;
+            .countdown-digit > span { display:inline-block; position:absolute;
                 transform-origin-z:1lh; transform:rotateX(45deg); opacity:0 }
             .countdown-digit + span { animation:0s linear hide }
             """)
-        }
         Pre(.style("font-family:ui-monospace")) {
             digit("m1", to: 9, period: 600, scale: 60)
             ":"

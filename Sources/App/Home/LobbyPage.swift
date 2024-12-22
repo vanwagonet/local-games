@@ -34,8 +34,7 @@ struct LobbyPage: Markup {
                 Button(.type(.submit)) { "Quit" }
             }
         }
-        Script {
-            InlineScriptContent("""
+        Script("""
             const source = new EventSource("/lobby")
             source.addEventListener("message", (event) => {
                 document.querySelector("#lobby").outerHTML = event.data
@@ -44,7 +43,6 @@ struct LobbyPage: Markup {
                 location.href = event.data
             })
             """)
-        }
     }
 
     struct PlayerList: HTMLContent {

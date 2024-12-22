@@ -25,23 +25,19 @@ struct SigninPage: Markup {
             P { "Play together, with a server on your local network." }
             Form(.method(.post), .action("/")) {
                 if let returnTo {
-                    Input(
-                        .init("type", value: Text(verbatim: "hidden")),
-                        .init("name", value: Text(verbatim: "returnTo")),
-                        .init("value", value: Text(verbatim: returnTo))
-                    )
+                    Input(.type(.hidden), .name("returnTo"), .value(returnTo))
                 }
                 FieldSet {
                     Legend { "Sign In" }
                     Label {
                         "Player Name"
                         Input(
-                            .init("type", value: Text(verbatim: "text")),
-                            .init("name", value: Text(verbatim: "name")),
-                            .init("placeholder", value: Text("Please enter your name")),
-                            .init("pattern", value: Text(verbatim: ".*\\S.*")),
-                            .init("required"),
-                            .init("value", value: Text(verbatim: name ?? ""))
+                            .type(.text),
+                            .name("name"),
+                            .placeholder(Text("Please enter your name")),
+                            .pattern(".*\\S.*"),
+                            .required,
+                            .value(name ?? "")
                         )
                     }
                     Button(.type(.submit)) {

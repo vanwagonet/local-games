@@ -26,10 +26,8 @@ struct ScramblePage: Markup {
             Meta(.httpEquiv("refresh"), .content(String(state.remaining.seconds + 1)))
         }
         Link(href: "\(Scramble.path).css", .rel(.stylesheet))
-        Style {
-            let delay = (state.remaining - .minutes(3) - .seconds(3)).seconds
-            Text(verbatim: ".fill::after { animation-delay:\(delay)s }")
-        }
+        let delay = (state.remaining - .minutes(3) - .seconds(3)).seconds
+        Style(".fill::after { animation-delay:\(delay)s }")
     }
 
     @MarkupBuilder var body: some HTMLContent {
@@ -80,7 +78,13 @@ struct ScramblePage: Markup {
                 }
                 if state.remaining > .zero {
                     Form(.method(.post), .action("\(Scramble.path(state.gameID))/entries")) {
-                        Input(.autoFocus, .autoCapitalize(.none), .init("name", value: Text(verbatim: "word")), .init("placeholder", value: Text("word")))
+                        Input(
+                            .autoFocus,
+                            .autoCapitalize(.none),
+                            .autoComplete(.off),
+                            .name("word"),
+                            .placeholder(Text("word"))
+                        )
                         Button(.type(.submit)) { "add" }
                     }
                 }
@@ -97,8 +101,7 @@ struct ScramblePage: Markup {
                 }
             }
         }
-        Script {
-            InlineScriptContent("""
+        Script("""
             const input = document.querySelector("[name=word]")
             input.focus()
             const parser = new DOMParser()
@@ -116,7 +119,6 @@ struct ScramblePage: Markup {
                 }
             })
             """)
-        }
     }
 }
 
