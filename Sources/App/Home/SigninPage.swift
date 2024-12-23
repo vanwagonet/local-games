@@ -32,6 +32,7 @@ struct SigninPage: Markup {
                     Label {
                         "Player Name"
                         Input(
+                            .autoCorrect(.off),
                             .type(.text),
                             .name("name"),
                             .placeholder(Text("Please enter your name")),

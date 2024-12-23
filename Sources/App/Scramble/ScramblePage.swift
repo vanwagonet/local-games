@@ -82,6 +82,7 @@ struct ScramblePage: Markup {
                             .autoFocus,
                             .autoCapitalize(.none),
                             .autoComplete(.off),
+                            .autoCorrect(.off),
                             .name("word"),
                             .placeholder(Text("word"))
                         )
