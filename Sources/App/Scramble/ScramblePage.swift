@@ -21,11 +21,11 @@ struct ScramblePage: Markup {
         Meta(.charset(.utf8))
         Meta(.name("viewport"), .content("width=device-width, initial-scale=1.0"))
         Title { "Scramble - Local Games" }
-        Link(href: "/icon.svg", .rel(.icon))
+        Link(.href("/icon.svg"), .rel(.icon))
         if state.remaining > .zero {
             Meta(.httpEquiv("refresh"), .content(String(state.remaining.seconds + 1)))
         }
-        Link(href: "\(Scramble.path).css", .rel(.stylesheet))
+        Link(.href("\(Scramble.path).css"), .rel(.stylesheet))
         let delay = (state.remaining - .minutes(3) - .seconds(3)).seconds
         Style(".fill::after { animation-delay:\(delay)s }")
     }

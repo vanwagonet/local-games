@@ -15,9 +15,9 @@ struct LobbyPage: Markup {
         Meta(.charset(.utf8))
         Title { "Local Games" }
         Meta(.name("viewport"), .content("width=device-width, initial-scale=1.0"))
-        Link(href: "/icon.svg", .rel(.icon))
+        Link(.href("/icon.svg"), .rel(.icon))
         NoScript { Meta(.httpEquiv("refresh"), .content("5")) }
-        Link(href: "/style.css", .rel(.stylesheet))
+        Link(.href("/style.css"), .rel(.stylesheet))
     }
 
     @MarkupBuilder var body: some HTMLContent {
