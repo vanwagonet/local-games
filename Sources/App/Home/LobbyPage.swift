@@ -35,7 +35,7 @@ struct LobbyPage: Markup {
             }
         }
         Script("""
-            const source = new EventSource("/lobby")
+            const source = new EventSource("\(Lobby.path)")
             source.addEventListener("message", (event) => {
                 document.querySelector("#lobby").outerHTML = event.data
             })

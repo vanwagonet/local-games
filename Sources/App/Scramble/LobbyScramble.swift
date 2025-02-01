@@ -8,7 +8,7 @@ extension Lobby {
     }
 
     func scramble(for id: Session.ID) async -> Scramble? {
-        for game in scrambles.values {
+        for game in scrambles.values where await game.remaining > .zero {
             if await game.players.contains(id) {
                 return game
             }

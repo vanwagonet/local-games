@@ -37,7 +37,7 @@ struct ScramblePage: Markup {
                 CountDown(remaining: state.remaining)
             } else {
                 H2 { "Your total: \(state.entries.map(\.score).reduce(0, +))p" }
-                P { A(.href("/lobby")) { "Return to lobby" } }
+                P { A(.href(Lobby.path)) { "Return to lobby" } }
             }
             Section(.class("fill")) {
                 SVG(

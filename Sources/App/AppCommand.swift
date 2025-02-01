@@ -8,7 +8,7 @@ struct AppCommand: AsyncParsableCommand, AppArguments {
     var hostname: String = "0.0.0.0"
 
     @Option(name: .shortAndLong)
-    var port: Int = 8080
+    var port: Int = 8888
 
     @Option(name: .shortAndLong)
     var logLevel: Logger.Level?

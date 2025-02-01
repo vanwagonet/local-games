@@ -11,8 +11,12 @@ struct ScrambleController {
     }
 
     @Sendable func start(request: Request, context: Context) async throws -> Response {
-        guard let session = context.session, await context.app.lobby.playerIDs.contains(session.id) else {
-            throw HTTPError(.notFound)
+        guard let session = context.session else { return Response.redirect(to: "/") }
+        guard await context.app.lobby.playerIDs.contains(session.id) else {
+            if let gameID = await context.app.lobby.scramble(for: session.id)?.id {
+                return Response.redirect(to: Scramble.path(gameID))
+            }
+            return Response.redirect(to: Lobby.path)
         }
 
         return await Response.redirect(to: context.app.lobby.startScramble())
@@ -22,7 +26,7 @@ struct ScrambleController {
         guard let param = context.parameters.get("id", as: String.self),
               let id = Scramble.ID(base36: param), let game = await context.app.lobby.scrambles[id],
               let session = context.session, await game.players.contains(session.id) else {
-            return Response.redirect(to: "/lobby")
+            return Response.redirect(to: Lobby.path)
         }
 
         let players = await context.app.sessions[for: game.players]

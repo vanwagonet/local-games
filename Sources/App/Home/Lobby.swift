@@ -9,6 +9,8 @@ final actor Lobby: EventStream {
 
     var scrambles: [Scramble.ID: Scramble] = [:]
 
+    static let path = "/lobby"
+
     init(sessions: SessionStorage) {
         self.sessions = sessions
     }
@@ -36,8 +38,8 @@ final actor Lobby: EventStream {
 
     func gamePath(for id: Session.ID) async -> String? {
         guard !playerIDs.contains(id) else { return nil }
-        if let game = await scramble(for: id), await game.remaining > .zero {
-            return Scramble.path(game.id)
+        if let gameID = await scramble(for: id)?.id {
+            return Scramble.path(gameID)
         }
         return nil
     }

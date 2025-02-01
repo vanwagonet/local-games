@@ -7,14 +7,14 @@ struct HomeController {
         RouteCollection(context: Context.self)
             .on("/", method: .get, use: home)
             .on("/", method: .post, use: signin)
-            .on("/lobby", method: .get, use: lobby)
+            .on(RouterPath(Lobby.path), method: .get, use: lobby)
             .on("/signout", method: .post, use: signout)
     }
 
     @Sendable func home(request: Request, context: Context) async throws -> Response {
         if let id = context.session?.id {
             let path = await context.app.lobby.gamePath(for: id)
-            return Response.redirect(to: path ?? "/lobby")
+            return Response.redirect(to: path ?? Lobby.path)
         }
 
         let name = request.uri.queryParameters["name"].map { String($0) } ?? request.cookies["name"]?.value
@@ -34,7 +34,7 @@ struct HomeController {
             "id": .string(session.idBase36),
         ])
 
-        var response = Response.redirect(to: "/lobby")
+        var response = Response.redirect(to: Lobby.path)
         if let returnTo = form.returnTo, !returnTo.hasPrefix("//"), !returnTo.contains(":") {
             response = Response.redirect(to: returnTo)
         }

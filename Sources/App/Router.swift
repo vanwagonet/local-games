@@ -10,7 +10,7 @@ func buildRouter() -> Router<AppRequestContext> {
     }
 
     router.addRoutes(HomeController().routes)
-    router.addRoutes(ScrambleController().routes, atPath: "/scramble")
+    router.addRoutes(ScrambleController().routes, atPath: RouterPath(Scramble.path))
 
     router.get("/health") { _, _ in
         HTTPResponse.Status.ok
