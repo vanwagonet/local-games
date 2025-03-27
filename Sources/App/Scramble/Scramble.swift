@@ -101,7 +101,7 @@ actor Scramble: Identifiable {
         let y: Int
     }
 
-    enum Size: Int {
+    enum Size: Int, Codable {
         case four = 4
         case five = 5
     }

@@ -19,7 +19,8 @@ struct ScrambleController {
             return Response.redirect(to: Lobby.path)
         }
 
-        return await Response.redirect(to: context.app.lobby.startScramble())
+        let size = try await request.decode(as: StartFormData.self, context: context).size
+        return await Response.redirect(to: context.app.lobby.startScramble(size: size))
     }
 
     @Sendable func game(request: Request, context: Context) async throws -> Response {
@@ -47,6 +48,10 @@ struct ScrambleController {
         let form = try await request.decode(as: EntryFormData.self, context: context)
         await game.addEntry(form.word, inDict: WordSet.shared.contains(form.word), from: session.id)
         return Response.redirect(to: Scramble.path(id))
+    }
+
+    struct StartFormData: Codable {
+        let size: Scramble.Size
     }
 
     struct EntryFormData: Codable {

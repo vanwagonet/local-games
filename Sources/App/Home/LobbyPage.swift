@@ -28,7 +28,8 @@ struct LobbyPage: Markup {
             PlayerList(players: players)
             NoScript { A(.href("/")) { "↻ Refresh" } }
             Form(.method(.post), .action(Scramble.path)) {
-                Button(.type(.submit)) { "Start Scramble" }
+                Button(.type(.submit), .name("size"), .value("4")) { "4x4 Scramble" }
+                Button(.type(.submit), .name("size"), .value("5")) { "5x5 Scramble" }
             }
             Form(.method(.post), .action("/signout")) {
                 Button(.type(.submit)) { "Quit" }

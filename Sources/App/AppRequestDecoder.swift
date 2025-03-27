@@ -12,7 +12,9 @@ struct AppRequestDecoder: RequestDecoder {
             decoder.dateDecodingStrategy = .iso8601
             return try await decoder.decode(type, from: request, context: context)
         case .applicationUrlEncoded:
-            return try await URLEncodedFormDecoder().decode(type, from: request, context: context)
+            var decoder = URLEncodedFormDecoder()
+            decoder.dateDecodingStrategy = .iso8601
+            return try await decoder.decode(type, from: request, context: context)
         default:
             throw HTTPError(.badRequest)
         }

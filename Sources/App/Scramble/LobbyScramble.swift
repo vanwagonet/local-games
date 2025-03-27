@@ -1,7 +1,7 @@
 extension Lobby {
-    func startScramble() async -> String {
+    func startScramble(size: Scramble.Size = .five) async -> String {
         let id = Scramble.ID.next(avoiding: scrambles.keys)
-        scrambles[id] = Scramble(id: id, players: playerIDs, size: .five)
+        scrambles[id] = Scramble(id: id, players: playerIDs, size: size)
         notify(event: "redirect", data: Scramble.path(id))
         playerIDs = []
         return Scramble.path(id)
