@@ -6,7 +6,7 @@ actor WordSet {
     private var task: Task<Void, Error>?
     private var words: Set<String> = []
 
-    static var shared = WordSet()
+    static let shared = WordSet()
 
     private init() {}
 

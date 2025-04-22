@@ -70,8 +70,10 @@ struct HomeController {
                 }
 
                 await context.app.lobby.add(session)
-                let stream = await context.app.lobby.stream.map(ByteBuffer.init(string:)).cancelOnGracefulShutdown()
-                return Response(status: .ok, headers: .eventStream, body: ResponseBody(asyncSequence: stream))
+                return try await request.body.consumeWithCancellationOnInboundClose { _ -> Response in
+                    let stream = await context.app.lobby.stream.map(ByteBuffer.init(string:)).cancelOnGracefulShutdown()
+                    return Response(status: .ok, headers: .eventStream, body: ResponseBody(asyncSequence: stream))
+                }
 
             case .textHtml:
                 if let path = await context.app.lobby.gamePath(for: session.id) { return Response.redirect(to: path) }

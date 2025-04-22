@@ -25,7 +25,7 @@ final class BufferRenderer: MarkupRenderer {
         buffer.writeRepeatingByte(markup, count: 1)
     }
 
-    @inlinable func renderUTF8CodeUnits<C>(_ markup: C) where C : Collection, C.Element == UInt8 {
+    @inlinable func renderUTF8CodeUnits<C>(_ markup: C) where C: Collection, C.Element == UInt8 {
         buffer.writeBytes(markup)
     }
 }

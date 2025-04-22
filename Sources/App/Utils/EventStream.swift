@@ -42,7 +42,7 @@ extension EventStream {
         stream.onTermination = { [weak self] _ in Task { await self?.cleanup(id) } }
         onConnected(stream)
         if heartbeat == nil {
-            heartbeat = Task { [weak self] in
+            heartbeat = Task.detached(priority: .background) { [weak self] in
                 for await _ in AsyncTimerSequence.repeating(every: .seconds(20)).cancelOnGracefulShutdown() {
                     await self?.notify(event: "ping", data: "")
                 }

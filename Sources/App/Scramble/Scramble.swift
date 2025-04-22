@@ -41,45 +41,39 @@ actor Scramble: Identifiable {
 
     func paths(for word: String) -> [[Position]] {
         var paths: [[Position]] = []
-        var expectU = false
-        for char in word.uppercased() {
-            if char == "U", expectU {
-                expectU = false
-            } else if expectU {
-                return []
-            } else {
-                paths = find(char, after: paths)
-                if paths.isEmpty { break }
-                if char == "Q" { expectU = true }
-            }
-        }
-        return paths
-    }
-
-    func find(_ char: Character) -> [[Position]] {
-        var paths: [[Position]] = []
         for (y, row) in board.enumerated() {
-            for (x, die) in row.enumerated() where die.first == char {
-                paths.append([ Position(x: x, y: y) ])
+            for (x, die) in row.enumerated() where prefix(die, matches: word) {
+                paths.append(contentsOf: self.paths(
+                    for: word.dropFirst(die.count),
+                    after: [ Position(x: x, y: y) ]
+                ))
             }
         }
         return paths
     }
 
-    func find(_ char: Character, after paths: [[Position]]) -> [[Position]] {
-        guard !paths.isEmpty else { return find(char) }
-        var next: [[Position]] = []
-        for path in paths {
-            guard let last = path.last else { continue }
-            for (y, row) in board.enumerated() where abs(y - last.y) <= 1 {
-                for (x, die) in row.enumerated() where abs(x - last.x) <= 1 {
-                    if die.first == char, !path.contains(Position(x: x, y: y)) {
-                        next.append(path + [ Position(x: x, y: y) ])
-                    }
+    func paths(for remainder: Substring, after path: [Position] = []) -> [[Position]] {
+        guard let last = path.last, !remainder.isEmpty else { return [ path ] }
+
+        var paths: [[Position]] = []
+        for (y, row) in board.enumerated() where abs(y - last.y) <= 1 {
+            for (x, die) in row.enumerated() where abs(x - last.x) <= 1 {
+                if prefix(die, matches: remainder), !path.contains(Position(x: x, y: y)) {
+                    paths.append(contentsOf: self.paths(
+                        for: remainder.dropFirst(die.count),
+                        after: path + [ Position(x: x, y: y) ]
+                    ))
                 }
             }
         }
-        return next
+        return paths
+    }
+
+    func prefix<S: StringProtocol>(_ prefix: Substring, matches remainder: S) -> Bool {
+        remainder.prefix(prefix.count).compare(
+            prefix,
+            options: [ .caseInsensitive, .diacriticInsensitive, .widthInsensitive ],
+        ) == .orderedSame
     }
 
     func state(for id: Session.ID) -> State {
@@ -116,6 +110,53 @@ actor Scramble: Identifiable {
 
 extension Scramble {
     static func randomBoard(size: Size) -> Board {
+        let distribution: [Substring: Double] = [
+            "A": 0.082,
+            "B": 0.015,
+            "C": 0.028,
+            "D": 0.043,
+            "E": 0.027, // 0.127, but it's the backup, and getting all this to exactly add up to 1 is hard.
+            "F": 0.022,
+            "G": 0.02,
+            "H": 0.061,
+            "I": 0.07,
+            "J": 0.002,
+            "K": 0.008,
+            "L": 0.04,
+            "M": 0.024,
+            "N": 0.067,
+            "O": 0.075,
+            "P": 0.019,
+            "Qu": 0.001,
+            "R": 0.06,
+            "S": 0.063,
+            "T": 0.091,
+            "U": 0.028,
+            "V": 0.0098,
+            "W": 0.024,
+            "X": 0.0015,
+            "Y": 0.02,
+            "Z": 0.001,
+            "An": 0.005,
+            "Er": 0.005,
+            "He": 0.005,
+            "In": 0.005,
+            "Th": 0.005,
+        ]
+        return (0..<size.rawValue).map { _ in
+            (0..<size.rawValue).map { _ in
+                let mark = Double.random(in: 0..<1)
+                var current = Double.zero
+                for (face, percent) in distribution {
+                    current += percent
+                    if mark <= current { return face }
+                }
+                return "E" // Purposely left a ~10% chance of getting here to ensure other letters get a fair shot.
+            }
+        }
+    }
+
+    static func randomBoard2(size: Size) -> Board {
         let side = size.rawValue
         let total = side * side
         let dice = """

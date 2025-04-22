@@ -21,7 +21,9 @@ pre { font-size:x-large }
 .entry-path:target { opacity:0.7 }
 [href="#die-bg"] { fill:var(--die-bg) }
 [href="#die-f"] { fill:url(#die-g) }
-text { dominant-baseline:central; text-anchor:middle; fill:currentcolor; font-size:4% }
+text { dominant-baseline:middle; text-anchor:middle; fill:currentcolor; font-size:4% }
+@supports(text-align-last:center) /* Safari 16+ */ { text { dominant-baseline:central } }
+text { font-family:ui-rounded,'Arial Rounded MT',system-ui }
 ul { list-style-type:none; text-align:left }
 .simple li { display:inline }
 .simple li + li::before { content:", " }
