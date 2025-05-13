@@ -77,7 +77,7 @@ struct ScramblePage: Markup {
                     }
                 }
                 if state.remaining > .zero {
-                    Form(.method(.post), .action("\(Scramble.path(state.gameID))/entries")) {
+                    Form(.id("add-entry"), .method(.post), .action("\(Scramble.path(state.gameID))/entries")) {
                         Input(
                             .autoFocus,
                             .autoCapitalize(.none),
@@ -101,12 +101,17 @@ struct ScramblePage: Markup {
                     }
                 }
             }
+            if state.remaining > .zero {
+                Form(.method(.post), .action("\(Scramble.path(state.gameID))/quit")) {
+                    Button(.type(.submit)) { "Quit" }
+                }
+            }
         }
         Script("""
             const input = document.querySelector("[name=word]")
             input.focus()
             const parser = new DOMParser()
-            document.querySelector("form")?.addEventListener("submit", async (event) => {
+            document.getelementById("add-entry")?.addEventListener("submit", async (event) => {
                 event.preventDefault()
                 const form = event.target, data = new FormData(form)
                 input.value = ""

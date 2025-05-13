@@ -80,6 +80,10 @@ actor Scramble: Identifiable {
         State(board: board, entries: entries[id] ?? [], gameID: self.id, remaining: remaining)
     }
 
+    func quit(_ id: Session.ID) {
+        entries.removeValue(forKey: id)
+    }
+
     typealias Board = [[Substring]]
     typealias Path = [Position]
 
@@ -110,6 +114,13 @@ actor Scramble: Identifiable {
 
 extension Scramble {
     static func randomBoard(size: Size) -> Board {
+        switch size {
+        case .four: randomBoard4()
+        case .five: randomBoard5()
+        }
+    }
+
+    static func randomBoard5() -> Board {
         let distribution: [Substring: Double] = [
             "A": 0.082,
             "B": 0.015,
@@ -143,8 +154,8 @@ extension Scramble {
             "In": 0.005,
             "Th": 0.005,
         ]
-        return (0..<size.rawValue).map { _ in
-            (0..<size.rawValue).map { _ in
+        return (0..<5).map { _ in
+            (0..<5).map { _ in
                 let mark = Double.random(in: 0..<1)
                 var current = Double.zero
                 for (face, percent) in distribution {
@@ -156,8 +167,8 @@ extension Scramble {
         }
     }
 
-    static func randomBoard2(size: Size) -> Board {
-        let side = size.rawValue
+    static func randomBoard4() -> Board {
+        let side = 4
         let total = side * side
         let dice = """
             A A E E G N

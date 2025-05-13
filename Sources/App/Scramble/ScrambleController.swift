@@ -8,6 +8,7 @@ struct ScrambleController {
             .on("/", method: .post, use: start)
             .on("/:id", method: .get, use: game)
             .on("/:id/entries", method: .post, use: addEntry)
+            .on("/:id/quit", method: .post, use: quit)
     }
 
     @Sendable func start(request: Request, context: Context) async throws -> Response {
@@ -48,6 +49,16 @@ struct ScrambleController {
         let form = try await request.decode(as: EntryFormData.self, context: context)
         await game.addEntry(form.word, inDict: WordSet.shared.contains(form.word), from: session.id)
         return Response.redirect(to: Scramble.path(id))
+    }
+
+    @Sendable func quit(request: Request, context: Context) async throws -> Response {
+        guard let param = context.parameters.get("id", as: String.self),
+              let id = Scramble.ID(base36: param), let game = await context.app.lobby.scrambles[id],
+              let session = context.session, await game.players.contains(session.id) else {
+            return Response.redirect(to: Lobby.path)
+        }
+        await game.quit(session.id)
+        return Response.redirect(to: Lobby.path)
     }
 
     struct StartFormData: Codable {
