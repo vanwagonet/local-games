@@ -26,7 +26,7 @@ struct ScramblePage: Markup {
             Meta(.httpEquiv("refresh"), .content(String(state.remaining.seconds + 1)))
         }
         Link(.href("\(Scramble.path).css"), .rel(.stylesheet))
-        let delay = (state.remaining - .minutes(3) - .seconds(3)).seconds
+        let delay = (state.remaining - state.duration - .seconds(3)).seconds
         Style(".fill::after { animation-delay:\(delay)s }")
     }
 

@@ -1,11 +1,12 @@
 actor Scramble: Identifiable {
     let board: Board
+    let duration = Duration.minutes(3)
     var entries: [Session.ID: [Entry]]
     nonisolated let id: Identifier<Scramble, UInt>
     var players: Set<Session.ID> { Set(entries.keys) }
     let start: ContinuousClock.Instant
 
-    var remaining: Duration { max(start.advanced(by: .minutes(3)) - .now, .zero) }
+    var remaining: Duration { max(start.advanced(by: duration) - .now, .zero) }
     static let path = "/scramble"
     static func path(_ id: ID) -> String { "\(path)/\(id.base36)" }
 
@@ -77,7 +78,7 @@ actor Scramble: Identifiable {
     }
 
     func state(for id: Session.ID) -> State {
-        State(board: board, entries: entries[id] ?? [], gameID: self.id, remaining: remaining)
+        State(board: board, duration: duration, entries: entries[id] ?? [], gameID: self.id, remaining: remaining)
     }
 
     func quit(_ id: Session.ID) {
@@ -106,6 +107,7 @@ actor Scramble: Identifiable {
 
     struct State {
         let board: Board
+        let duration: Duration
         let entries: [Entry]
         let gameID: Scramble.ID
         let remaining: Duration

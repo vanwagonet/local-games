@@ -1,3 +1,17 @@
+@view-transition { navigation:auto; }
+
+@keyframes page-old {
+    from { transform:translateX(0%); }
+    to { transform:translateX(100%); }
+}
+::view-transition-old(root) { animation: 0.4s ease both page-old; }
+
+@keyframes page-new {
+    from { transform:translateX(-20%); }
+    to { transform:translateX(0%); }
+}
+::view-transition-new(root) { animation: 0.4s ease both page-new; }
+
 :root { color-scheme:light dark; font-family:system-ui; height:100%; margin:0 }
 @media (prefers-color-scheme:dark) {}
 
